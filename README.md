@@ -9,3 +9,6 @@
 `REDIS_PORT=your_redis_port` (defaults to '6379')  
 `SECRET_KEY=your_django_secret_key`
 4. Run server: `python manage.py runserver`
+
+#### Tests
+From visited_sites/ directory: `python manage.py test`

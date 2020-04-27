@@ -10,7 +10,6 @@ from redis import RedisError
 from rest_framework import status
 from rest_framework.decorators import api_view
 
-# TODO delete unused files (models etc)
 
 # redis credentials
 REDIS_HOST = os.getenv('REDIS_HOST', default='localhost')
@@ -35,8 +34,7 @@ def parse_urls_to_domains(urls) -> list:
     :param urls: url strings list
     :return: list of unique domain strings
     """
-    domains = list(set([re.findall(regex, url)[0] for url in urls]))
-    return domains
+    return list(set([re.findall(regex, url)[0] for url in urls]))
 
 
 @csrf_exempt
@@ -46,7 +44,7 @@ def visited_links(request):
         timestamp = time.time()
         data = json.loads(request.body)
         keys = list(data.keys())
-        if keys != ['links']:
+        if keys != ['links'] or len(data) == 0:
             response = {
                 'status': 'error',
                 'data': data
@@ -54,13 +52,18 @@ def visited_links(request):
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
         urls = data['links']
         domains = parse_urls_to_domains(urls)
+        if not domains:
+            response = {
+                'status': 'error',
+                'data': data
+            }
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
         # write domains to Redis in a single transaction
-        if domains:
-            pipe = redis_instance.pipeline()
-            for domain in domains:
-                pipe.zadd('links', {f'{domain}: {timestamp}': timestamp})
-            pipe.execute()
+        pipe = redis_instance.pipeline()
+        for domain in domains:
+            pipe.zadd('links', {f'{domain}: {timestamp}': timestamp})
+        pipe.execute()
 
         return JsonResponse({'status': 'ok'}, status=status.HTTP_201_CREATED)
 
@@ -89,6 +92,14 @@ def visited_domains(request):
     try:
         time_from = request.GET.get('from')
         time_to = request.GET.get('to')
+        if time_from > time_to:
+            response = {
+                'status': {
+                    'error': "from > to",
+                    'args': f'{time_from} > {time_to}'
+                },
+            }
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
         # get domains from Redis
         domains = redis_instance.zrangebyscore('links', time_from, time_to)
