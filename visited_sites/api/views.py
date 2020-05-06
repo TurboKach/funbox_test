@@ -1,26 +1,19 @@
 import json
-import os
 import re
 import time
 
 import redis
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from redis import RedisError
 from rest_framework import status
 from rest_framework.decorators import api_view
 
-
-# redis credentials
-REDIS_HOST = os.getenv('REDIS_HOST', default='localhost')
-REDIS_PORT = os.getenv('REDIS_PORT', default=6379)
-if REDIS_HOST is None or REDIS_PORT is None:
-    raise ConnectionError('Invalid Redis settings!')
-
 # connect to Redis instance
 redis_instance = redis.StrictRedis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
+    host=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
     db=0
 )
 
