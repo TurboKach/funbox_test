@@ -24,12 +24,6 @@ if DOTENV_PATH:
 else:
     exit("Error: '.env' file not found in project directory.")
 
-# redis credentials
-REDIS_HOST = os.getenv('REDIS_HOST', default='localhost')
-REDIS_PORT = os.getenv('REDIS_PORT', default=6379)
-if REDIS_HOST is None or REDIS_PORT is None:
-    raise ConnectionError('Invalid Redis settings!')
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 

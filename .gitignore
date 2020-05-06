@@ -127,4 +127,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 Будет удалено tests/
-/visited_sites/api/migrations/
