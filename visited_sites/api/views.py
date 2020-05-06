@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import time
 
@@ -10,12 +9,7 @@ from redis import RedisError
 from rest_framework import status
 from rest_framework.decorators import api_view
 
-
-# redis credentials
-REDIS_HOST = os.getenv('REDIS_HOST', default='localhost')
-REDIS_PORT = os.getenv('REDIS_PORT', default=6379)
-if REDIS_HOST is None or REDIS_PORT is None:
-    raise ConnectionError('Invalid Redis settings!')
+from visited_sites.visited_sites.settings import REDIS_HOST, REDIS_PORT
 
 # connect to Redis instance
 redis_instance = redis.StrictRedis(
